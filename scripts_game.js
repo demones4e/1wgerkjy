@@ -145,26 +145,24 @@ else if (trapsAmount == 7) {
 }
 }
 
-let indexCurrent = 0;
+let contbalance = 10;
 
 var contbalance;
-async function updateBalance() {
-  const response = await getInfo({ authentication_token: localStorage.authentication_token });
-  contbalance = response.balance;
-  document.querySelector("#walletValue").innerHTML = `${response.balance.toFixed(2)} ₽`;
+function updateBalance() {
+  document.querySelector("#walletValue").innerHTML = `${contbalance.toFixed(2)} ₽`;
   try {
     const parentDocument = window.parent.document;
     const changeableElement = parentDocument.querySelector('.HeaderBalanceInfo_balance_Gw9TU');
     changeableElement.innerHTML = contbalance.toLocaleString('ru-RU', { useGrouping: true });
-
-  }
-  catch (error) {
+  } catch (error) {
     const parentDocument = window.parent.document;
     const changeableElement = parentDocument.querySelector('.HeaderGameRelatedBalance_balance_YTN_l');
     changeableElement.innerHTML = `${contbalance.toLocaleString('ru-RU', { useGrouping: true })} ₽`;
   }
 }
-updateBalance()
+
+// Вызываем функцию для первоначального обновления баланса
+updateBalance();
 
 
 export async function playGame() {
@@ -173,11 +171,9 @@ export async function playGame() {
   
   document.querySelector('.status-bar__status-title').innerText = 'Следующий шаг';
   if (bet_amount_value <= contbalance) {
-    
-  
-  await updateBalance()
-  changeBetValue(bet_amount_value)
-  changeInfo({ authentication_token: localStorage.authentication_token, balance: Number(contbalance)-Number(bet_amount_value)}).then((response) => {updateBalance()})
+    changeBetValue(bet_amount_value);
+    contbalance -= bet_amount_value; // Обновляем баланс локально
+    updateBalance();
 
   document.querySelector('.cells-board').classList.add('slideme');
     console.log(trapsAmount)
