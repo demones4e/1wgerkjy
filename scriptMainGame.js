@@ -10,35 +10,42 @@
 // const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
 // iframeDocument.querySelector('.app-wrapper').style.display = 'grid';
 
-let bal = 0;
-import { getInfo, changeInfo } from './Authorization/api/scriptAPI.js';
+// Устанавливаем баланс по умолчанию
+let bal = 10;
 
-function updateBalance() {
-  return getInfo({ authentication_token: localStorage.authentication_token })
-    .then((response) => {
-      bal = response.balance;
-      return bal; 
-    })
-    .catch((error) => {
-      console.error("Error during the request:", error);
-      throw error; 
-    });
-}
+// Функция для обновления баланса в интерфейсе
 function updateBalanceFunction() {
-	updateBalance().then((updatedBal) => {
-	  document.querySelector(".HeaderBalanceInfo_balance_Gw9TU").innerHTML =
-		updatedBal.toLocaleString('ru-RU', { useGrouping: true });
+  const updatedBal = bal; // Используем локальное значение баланса
 
-		var iframe = document.getElementById('myIframe');
-		var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-		iframeDocument.getElementById('walletValue').innerHTML = `${updatedBal.toFixed(2)} ₽`
+  // Обновляем баланс в основном интерфейсе
+  document.querySelector(".HeaderBalanceInfo_balance_Gw9TU").innerHTML =
+    updatedBal.toLocaleString('ru-RU', { useGrouping: true });
 
-
-	});
-
-
+  // Обновляем баланс в iframe
+  var iframe = document.getElementById('myIframe');
+  if (iframe) {
+    var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+    iframeDocument.getElementById('walletValue').innerHTML = `${updatedBal.toFixed(2)} ₽`;
+  }
 }
+
+// Вызываем функцию для первоначального обновления баланса
 updateBalanceFunction();
+
+// Обработчик для кнопки, которая показывает/скрывает изменения баланса
+document.querySelector('.Button_root_eTUot').addEventListener('click', () => {
+  const balanceChangesElement = document.querySelector('.HeaderUserMenu_balance_changes');
+  if (balanceChangesElement) {
+    balanceChangesElement.style.display = balanceChangesElement.style.display === 'none' ? 'flex' : 'none';
+  }
+});
+
+// Обработчик для кнопки изменения баланса
+document.getElementById('changeButtonValue').addEventListener('click', () => {
+  let changeValue = document.getElementById('changeInputValue').value;
+  bal = Number(changeValue); // Обновляем баланс локально
+  updateBalanceFunction(); // Обновляем интерфейс
+});
 
 document.querySelector('.Button_root_eTUot').addEventListener('click', () => {
 	document.querySelector('.HeaderUserMenu_balance_changes').style.display = document.querySelector('.HeaderUserMenu_balance_changes').style.display === 'none' ? 'flex' : 'none';
